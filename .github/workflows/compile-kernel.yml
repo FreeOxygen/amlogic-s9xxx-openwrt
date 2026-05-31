@@ -83,6 +83,11 @@ on:
         options:
           - -ophub
           - -yourname
+      ssh_debug:
+        description: "Enable SSH debug session after compilation"
+        required: false
+        default: false
+        type: boolean
 
 env:
   TZ: Etc/UTC
@@ -190,6 +195,7 @@ jobs:
       - name: Compile the kernel [ ${{ matrix.kernel_version }} ]
         uses: ophub/amlogic-s9xxx-armbian@main
         if: ${{ steps.disk.outputs.status == 'success' && !cancelled() }}
+        continue-on-error: true
         with:
           build_target: kernel
           kernel_source: ${{ inputs.kernel_source }}
@@ -202,6 +208,32 @@ jobs:
           ccache_clear: ${{ inputs.ccache_clear }}
           docker_hostpath: /builder
           docker_image: ophub/armbian-${{ inputs.docker_image }}:arm64
+          
+      - name: Upload builder directory to artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: kernel-builder-${{ matrix.kernel_version }}-${{ github.run_id }}
+          path: /builder/
+          retention-days: 7
+          if-no-files-found: warn
+
+      - name: Upload compilation data to artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: kernel-build-data-${{ matrix.kernel_version }}-${{ github.run_id }}
+          path: /tmp/kernel-build-artifacts/
+          retention-days: 7
+          if-no-files-found: ignore
+          
+      - name: Enable SSH debug session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ inputs.ssh_debug == true && !cancelled() }}
+        with:
+          limit-output-lines: 50
+          install-dependencies: false
+          timeout-minutes: 120
 
       - name: Upload Kernel to Release
         uses: ophub/upload-to-releases@main
