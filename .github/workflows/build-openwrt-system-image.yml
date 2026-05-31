@@ -259,6 +259,7 @@ on:
           - 6.1.y
           - 6.6.y
           - 6.12.y
+          - 6.12.85
           - 6.18.y
           - 5.10.y_5.15.y
           - 6.1.y_6.6.y
@@ -568,3 +569,29 @@ jobs:
             ### Applicable Platform
             - 🐧 `arm64`
             - 🐋 Docker image: https://hub.docker.com/u/ophub
+          
+      - name: Collect all artifacts
+        if: ${{ !cancelled() }}
+        run: |
+          mkdir -p artifacts
+          # 收集 rootfs
+          if [[ -d "openwrt/output" ]]; then
+            cp -r openwrt/output/* artifacts/ 2>/dev/null || true
+          fi
+          # 收集打包后的产物
+          if [[ -n "${{ env.PACKAGED_OUTPUTPATH }}" ]] && [[ -d "${{ env.PACKAGED_OUTPUTPATH }}" ]]; then
+            cp -r ${{ env.PACKAGED_OUTPUTPATH }}/* artifacts/ 2>/dev/null || true
+          fi
+          # 列出所有收集的产物
+          echo "=== Collected artifacts ==="
+          find artifacts -type f -exec ls -lh {} \;
+          echo "Total files: $(find artifacts -type f | wc -l)"
+
+      - name: Upload all artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: openwrt-artifacts-${{ matrix.branch }}-${{ github.run_number }}
+          path: artifacts/
+          retention-days: 30
+          compression-level: 6
