@@ -27,7 +27,7 @@ on:
       openwrt_board:
         description: "Select device board"
         required: false
-        default: "all"
+        default: "dg-tn3568"
         type: choice
         options:
           - all
@@ -263,6 +263,7 @@ on:
           - 5.15.y
           - 6.1.y
           - 6.6.y
+          - 6.6.141
           - 6.12.y
           - 6.18.y
           - 5.10.y_5.15.y
