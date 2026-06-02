@@ -224,7 +224,7 @@ rebuild_firmware() {
 
     # Rebuild firmware
     make image PROFILE="" PACKAGES="${my_packages}" FILES="files"
-
+    echo ${my_packages} >> tmp_config
     sync && sleep 3
     echo -e "${INFO} [ ${openwrt_dir}/bin/targets/*/*/ ] directory contents: \n$(ls -lh bin/targets/*/*/ 2>/dev/null)"
     echo -e "${INFO} Firmware build completed successfully."
@@ -278,6 +278,7 @@ custom_settings() {
         echo -e "${INFO} Moving modified rootfs to output directory..."
         mv -f "${tmp_path}/${original_filename}" "${output_path}/"
         # Copy the config file to the output directory
+        cp -f tmp_config "${output_path}/tmp_config"
         cp -f .config "${output_path}/config" || true
     fi
 
