@@ -45,7 +45,6 @@ CONFIG_KERNEL_CGROUP_BPF=y
 CONFIG_KERNEL_BPF_EVENTS=y
 CONFIG_PACKAGE_dae=y
 CONFIG_PACKAGE_daed=y
-CONFIG_PACKAGE_luci-app-dae=y
 CONFIG_PACKAGE_luci-app-daed=y
 CONFIG_PACKAGE_luci-i18n-dae-zh-cn=y
 # CONFIG_PACKAGE_luci-app-dump1090 is not set
